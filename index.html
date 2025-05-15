@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./style.css" type="text/css" />
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+  <script language="JavaScript" type="text/javascript" src="script.js"></script>
+
+  <title>🔥CrashDown🔥</title>
+</head>
+
+<body>
+  <!-- HEAD -->
+  <div class="menu">
+    <h1 class="title">
+      <span class="fire"> <img src="./fire.gif" alt="Fire" style="width:80px;height:80px;">
+      </span>
+      CrashDown
+      <span class="fire"> <img src="./fire.gif" alt="Fire" style="width:80px;height:80px;">
+      </span>
+    </h1>
+  </div>
+
+  <!-- NEW GAME BUTTON -->
+  <div onclick="startGame()" id="start-container">
+    <span id="start-btn">START</span>
+  </div>
+
+  <!-- GAME WINDOW -->
+  <div id="game-container">
+    <div class="toplist">
+      <h2>TOPLIST</h2>
+      <div id="toplist-names"></div>
+    </div>
+
+    <div id="game-window">
+      <div id="game-wrapper" style="position: relative;">
+        <div id="game-grid"></div>
+      </div>
+      <div id="lines"></div>
+    </div>
+    <div id="game-stats">
+      <div class="stat-container">
+        <div class="stat-name">Remaining time:</div>
+        <div class="stat" id="remaining-time"></div>
+      </div>
+      <div class="stat-container">
+        <div class="stat-name">High score:</div>
+        <div class="stat" id="high-score">0</div>
+      </div>
+      <div class="stat-container">
+        <div class="stat-name">Level</div>
+        <div class="stat" id="level">1</div>
+      </div>
+      <div class="stat-container">
+        <div class="stat-name">Lines</div>
+        <div class="stat" id="lines-counter">6</div>
+      </div>
+      <div class="powerups">
+        <button id="bomb-btn" class="button" onclick="useBomb()" disabled><img src="./bomb.svg" alt="bomb" width="30">
+          Bomb (<span>0</span>)</button>
+        <button id="time-btn" class="button" onclick="useTimeBonus()" disabled><img src="./clock.png" alt="time"
+            width="30">+10s (<span>0</span>)</button>
+      </div>
+      <div class="stat-container blockk">
+        <div id="username-form">
+          <div class="stat-name">Add username:</div>
+          <input id="username"></input>
+          <button class="button" onclick="addUsername()">ok</button>
+        </div>
+        <div class="statics" id="username-holder"></div>
+      </div>
+      <div>
+        <button class="button" onclick="endGame()">End game</button>
+      </div>
+      <div class="notification" id="bomb-notification"><img src="./bomb.svg" alt="bomb" width="30">Click on a block to
+        explode a 3x3 area!</div>
+      <div class="notification" id="time-notification"><img src="./clock.png" alt="time" width="30">Time bonus
+        activated!
+        PLUS 10 seconds!</div>
+
+    </div>
+  </div>
+
+  <!--AUDIO AND SETTINGS -->
+  <div class="footer">
+    <div class="audio-button" onclick="turnOnMusic()" id="audio-off">
+      <img src="./audio-off.png" width="100" alt="" />
+    </div>
+    <div class="audio-button" onclick="turnOffMusic()" id="audio-on">
+      <img src="./audio-on.png" width="78" alt="" />
+    </div>
+    <audio id="music" loop>
+      <source src="./music.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <div class="modal" id="level-up-modal">
+    <div>LEVEL UP</div>
+  </div>
+  <div class="modal">
+    <div id="game-over-modal"></div>
+  </div>
+
+
+  <audio id="fading-music">
+    <source src="./fading.wav" type="audio/mpeg" />
+  </audio>
+  <audio id="level-up-music">
+    <source src="./levelup.wav" type="audio/mpeg" />
+  </audio>
+  <audio id="bomb-music">
+    <source src="./bomb.mp3" type="audio/mpeg" />
+  </audio>
+</body>
+
+</html>

@@ -1,0 +1,305 @@
+@font-face {
+  font-family: "KarmaticArcade";
+  src: url("./karmatic-arcade-font/KarmaticArcade-6Yrp1.ttf") format("truetype");
+}
+
+:root {
+  --color-primary: #f2055c;
+  --color-secondary: #730260;
+  --color-yellow: #f29f05;
+  --color-orange: #05f205;
+  --color-red: #0ffbff;
+}
+
+body {
+  font-family: KarmaticArcade;
+  background-image: url("./bg.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100vw;
+  height: 97vh;
+  margin: 0;
+  padding: 0;
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  padding: 10px 100px;
+}
+
+.statics {
+  color: white;
+  font-family: KarmaticArcade;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.title {
+  color: white;
+  font-family: KarmaticArcade;
+  font-size: 4rem;
+  text-align: center;
+  margin: 0;
+}
+
+.fire {
+  margin: 0 10px;
+}
+
+#start-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+#start-btn {
+  font-size: 4rem;
+  display: inline-block;
+  margin: 5px;
+  font-weight: bold;
+  padding: 10px 0 10px 10px;
+  background-color: lightgray;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: rgb(179, 177, 177);
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  box-shadow: 0 0.2em gray;
+  cursor: pointer;
+  width: 350px;
+  text-align: center;
+}
+
+.video-game-button:active,
+#start-btn:active {
+  box-shadow: none;
+  position: relative;
+  top: 0.2em;
+}
+
+#game-container {
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+#game-container .toplist {
+  display: flex;
+}
+
+#game-window {
+  background: #000;
+  height: 550px;
+  width: 450px;
+}
+
+#game-stats {
+  align-self: flex-start;
+  margin: 20px 0px;
+  color: white;
+  font-size: 1em;
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+}
+
+.stat-container {
+  display: flex;
+  gap: 10px;
+  background-color: #000;
+  padding: 5px;
+  margin-top: 10px;
+  justify-content: space-between;
+  width: 350px;
+}
+
+.footer {
+  display: flex;
+  margin: 0 20px;
+  padding: 30px 100px;
+  position: absolute;
+  bottom: 0px;
+}
+
+.audio-button {
+  cursor: pointer;
+}
+
+#audio-on {
+  display: none;
+}
+.blockk {
+  display: block;
+}
+
+#username {
+  color: white;
+  font-family: KarmaticArcade;
+  font-size: 1rem;
+  text-align: center;
+  font-size: 18px;
+  padding: 5px 10px;
+  outline: none;
+  background: #000000;
+  color: #ffffff;
+  border: 4px dotted #ffffff;
+  border-radius: 1px;
+  width: 247px;
+}
+
+.button {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 1px;
+  color: #000000;
+  padding: 5px 10px;
+  border: 4px dotted #000000;
+  text-decoration: none;
+  background-color: #ffffff;
+  font-family: KarmaticArcade;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+#username-holder {
+  display: none;
+  min-width: 290px;
+  text-align: left;
+}
+
+#game-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 20px);
+  grid-auto-rows: 20px;
+  grid-template-rows: repeat(23, 20px);
+
+  gap: 2px;
+  justify-content: center;
+  margin-top: 20px;
+  justify-content: center;
+  height: 500px;
+  align-content: flex-end;
+}
+
+.block {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modal {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 100px;
+  overflow: auto;
+  background-color: var(--color-primary);
+  margin-top: -50px; /* Negative half of height. */
+  margin-left: -150px; /* Negative half of width. */
+  display: none;
+  align-items: center;
+  color: white;
+  justify-content: center;
+  font-size: 2rem;
+  border: 3px solid white;
+}
+
+.modal div {
+  animation: blinker 1s linear infinite;
+}
+
+.close {
+  cursor: pointer;
+}
+
+.floating-score {
+  color: white;
+  position: absolute;
+  display: flex;
+  align-items: center;
+}
+
+.floating-score span {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  margin-right: 5px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.hundred {
+  color: white;
+  animation: blinker 0.5s linear infinite;
+  font-size: 2rem;
+}
+
+.powerups {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.powerups .button {
+  background-color: #aaaaaa;
+  color: #8a8a8a;
+  border-color: #8a8a8a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  height: 50px;
+}
+
+.powerups .button.active {
+  background-color: white;
+  color: black;
+  border-color: black;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  height: 50px;
+}
+
+.notification {
+  background-color: white;
+  color: black;
+  width: 350px;
+  position: absolute;
+  bottom: 25vh;
+  padding: 5px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  display: none;
+}
+
+.toplist {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+  align-self: flex-start;
+  color: white;
+  width: 350px;
+}
+
+#game-over-modal {
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
