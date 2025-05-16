@@ -1,65 +1,103 @@
-let bestScore = 0;
-let userName = "";
-let level = 1;
-let lines = 6;
-let scoreToLevelUp = 300;
-let lineInterval = null;
-let timerInterval = null;
-let hideLevelInterval = null;
-let hideNotificationInterval = null;
+const GameState = {
+  userName: localStorage.getItem("userName"),
+  level: 1,
+  lines: 6,
+  scoreToLevelUp: 300,
+  lineInterval: null,
+  timerInterval: null,
+  hideLevelInterval: null,
+  hideNotificationInterval: null,
+  hideGameOverInterval: null,
 
-let linesTillCrash = 0;
-let highscore = 0;
-let bombsAvailable = 0;
-let timeBonusesAvailable = 0;
-let bombMode = false;
+  userNameModal: false,
+  winning: false,
+  linesTillCrash: 0,
+  highscore: 0,
+  bombsAvailable: 0,
+  timeBonusesAvailable: 0,
+  bombMode: false,
+};
 
-const rows = 23;
-const cols = 16;
-const initialFilledRows = 4;
-
-const colors = [
-  {
-    color: "red",
-    hex: "#f2055c",
-  },
-  {
-    color: "purple",
-    hex: "#730260",
-  },
-  {
-    color: "yellow",
-    hex: "#f29f05",
-  },
-  {
-    color: "green",
-    hex: "#05f205",
-  },
-  {
-    color: "blue",
-    hex: "#0ffbff",
-  },
-];
-
-const levels = [
-  { level: 1, score: 300, lines: 6, time: 90, colors: 3, lineInterval: 5000 },
-  { level: 2, score: 700, lines: 9, time: 80, colors: 3, lineInterval: 5000 },
-  { level: 3, score: 1200, lines: 12, time: 75, colors: 4, lineInterval: 4500 },
-  { level: 4, score: 1800, lines: 15, time: 70, colors: 4, lineInterval: 4000 },
-  { level: 5, score: 2500, lines: 18, time: 65, colors: 4, lineInterval: 4000 },
-  { level: 6, score: 3300, lines: 20, time: 60, colors: 5, lineInterval: 3500 },
-  { level: 7, score: 4200, lines: 22, time: 55, colors: 5, lineInterval: 3000 },
-  { level: 8, score: 5200, lines: 23, time: 50, colors: 5, lineInterval: 2500 },
-  { level: 9, score: 6300, lines: 23, time: 45, colors: 5, lineInterval: 2000 },
-  {
-    level: 10,
-    score: 7500,
-    lines: 23,
-    time: 40,
-    colors: 5,
-    lineInterval: 1500,
-  },
-];
+const GameConfig = {
+  rows: 23,
+  cols: 16,
+  initialFilledRows: 4,
+  colors: [
+    { color: "red", hex: "#f2055c" },
+    { color: "purple", hex: "#730260" },
+    { color: "yellow", hex: "#f29f05" },
+    { color: "green", hex: "#05f205" },
+    { color: "blue", hex: "#0ffbff" },
+  ],
+  levels: [
+    { level: 1, score: 300, lines: 6, time: 80, colors: 3, lineInterval: 5000 },
+    { level: 2, score: 700, lines: 9, time: 80, colors: 3, lineInterval: 5000 },
+    {
+      level: 3,
+      score: 1200,
+      lines: 12,
+      time: 75,
+      colors: 4,
+      lineInterval: 4500,
+    },
+    {
+      level: 4,
+      score: 1800,
+      lines: 15,
+      time: 70,
+      colors: 4,
+      lineInterval: 4000,
+    },
+    {
+      level: 5,
+      score: 2500,
+      lines: 18,
+      time: 65,
+      colors: 4,
+      lineInterval: 4000,
+    },
+    {
+      level: 6,
+      score: 3300,
+      lines: 20,
+      time: 60,
+      colors: 5,
+      lineInterval: 3500,
+    },
+    {
+      level: 7,
+      score: 4200,
+      lines: 22,
+      time: 55,
+      colors: 5,
+      lineInterval: 3000,
+    },
+    {
+      level: 8,
+      score: 5200,
+      lines: 23,
+      time: 50,
+      colors: 5,
+      lineInterval: 2500,
+    },
+    {
+      level: 9,
+      score: 6300,
+      lines: 23,
+      time: 45,
+      colors: 5,
+      lineInterval: 2000,
+    },
+    {
+      level: 10,
+      score: 7500,
+      lines: 23,
+      time: 40,
+      colors: 5,
+      lineInterval: 1500,
+    },
+  ],
+};
 
 // BASICS
 function showGameWindow() {
@@ -77,6 +115,7 @@ function startButtonVisibility(visible) {
 
 function turnOffMusic() {
   const music = $("#music");
+
   music[0].pause();
   $("#audio-off").css("display", "block");
   $("#audio-on").css("display", "none");
@@ -84,29 +123,31 @@ function turnOffMusic() {
 
 function turnOnMusic() {
   const music = $("#music");
+
   music[0].play();
+  music[0].volume = 0.4;
   $("#audio-off").css("display", "none");
   $("#audio-on").css("display", "block");
 }
 
 function startTimer(seconds) {
-  clearInterval(timerInterval);
-
-  let counter = seconds || levels[level - 1].time;
+  clearInterval(GameState.timerInterval);
   const timerElement = $("#remaining-time");
+  let counter = seconds || GameConfig.levels[GameState.level - 1].time;
+
   timerElement.text("00:" + counter);
 
-  timerInterval = setInterval(function () {
+  GameState.timerInterval = setInterval(function () {
     counter--;
 
     if (counter <= 0) {
-      clearInterval(timerInterval);
+      clearInterval(GameState.timerInterval);
       timerElement.text("Time's up!");
       gameOver();
       return;
     }
 
-    if (linesTillCrash == 23) {
+    if (GameState.linesTillCrash == 23) {
       gameOver();
     }
 
@@ -117,96 +158,133 @@ function startTimer(seconds) {
 // ADD USERNAME
 function addUsername() {
   const usernameInput = $("#username").val();
-  const userNameHolder = $("#username-holder");
 
-  if (usernameInput) {
-    userName = usernameInput;
-    userNameHolder.show();
-    userNameHolder.text(usernameInput);
-
-    $("#username-form").hide();
-    console.log(usernameInput);
-  } else {
-    alert("Please enter a username.");
-  }
+  GameState.userNameModal = false;
+  GameState.userName = usernameInput;
+  localStorage.setItem("userName", usernameInput);
+  hideUsernameModal();
+  endGame();
 }
 
+function showUsernameModal() {
+  const modal = $("#username-modal");
+
+  clearInterval(GameState.lineInterval);
+  clearInterval(GameState.timerInterval);
+  clearInterval(GameState.hideGameOverInterval);
+
+  modal.show();
+  modal.css("display", "flex");
+  GameState.userNameModal = true;
+}
+
+function hideUsernameModal() {
+  const modal = $("#username-modal");
+
+  modal.hide();
+  GameState.userNameModal = false;
+}
+
+function saveHighscore(name, score) {
+  const stored = localStorage.getItem("crashdownToplist");
+  let list = stored ? JSON.parse(stored) : [];
+
+  list.push({ name, score });
+  list.sort((a, b) => b.score - a.score);
+  list = list.slice(0, 10);
+
+  localStorage.setItem("crashdownToplist", JSON.stringify(list));
+}
+
+function loadHighscoreList() {
+  const listElement = $("#toplist-items");
+  const stored = localStorage.getItem("crashdownToplist");
+
+  listElement.empty();
+
+  if (!stored) return;
+  const list = JSON.parse(stored);
+
+  list.forEach((entry, index) => {
+    const li = $("<li></li>").text(
+      `${index + 1}. ${entry.name} — ${entry.score} pts`
+    );
+    listElement.append(li);
+  });
+}
 // POINTS
 
 function changeHighscore(points) {
   const pointsElement = $("#high-score");
   const currentPoints = parseInt(pointsElement.text());
-
   const newPoints = currentPoints + points;
+
   pointsElement.text(newPoints);
 
-  if (newPoints >= scoreToLevelUp) {
-    increaseLevel();
+  if (newPoints >= GameConfig.levels[9].score) {
+    winningTheGame();
   }
-}
 
-function checkIfHighestScore() {
-  const currentPoints = parseInt($(".high-score").text());
-  if (currentPoints > bestScore) {
-    bestScore = currentPoints;
-    $(".best-score").text(bestScore);
+  if (newPoints >= GameState.scoreToLevelUp) {
+    increaseLevel();
   }
 }
 
 // LEVEL UP
 function increaseLevel() {
-  if (level === 10) {
-    winningTheGame();
-    return;
-  }
-  clearInterval(timerInterval);
-  clearInterval(lineInterval);
-  clearInterval(hideNotificationInterval);
-  clearInterval(hideLevelInterval);
-
   const levelElement = $("#level");
   let currentLevel = parseInt(levelElement.text());
+
+  clearInterval(GameState.timerInterval);
+  clearInterval(GameState.lineInterval);
+  clearInterval(GameState.hideNotificationInterval);
+  clearInterval(GameState.hideLevelInterval);
+
   currentLevel++;
   levelElement.text(currentLevel);
+  GameState.linesTillCrash = 0;
+  GameState.level = GameConfig.levels[currentLevel - 1].level;
+  GameState.scoreToLevelUp = GameConfig.levels[currentLevel - 1].score;
+  GameState.lines = GameConfig.levels[currentLevel - 1].lines;
 
-  level = currentLevel;
-  scoreToLevelUp = levels[currentLevel - 1].score;
-  lines = levels[currentLevel - 1].lines;
-  $("#lines-counter").text(lines);
+  $("#lines-counter").text(GameState.lines);
+
   showLevelUpModal();
   newBoard();
 
-  startTimer(levels[currentLevel - 1].time);
-  if (level === 4 || level === 8) {
-    bombsAvailable++;
-    timeBonusesAvailable++;
+  startTimer(GameConfig.levels[currentLevel - 1].time);
+
+  if (GameState.level === 4 || GameState.level === 8) {
+    GameState.bombsAvailable++;
+    GameState.timeBonusesAvailable++;
 
     $("#bomb-btn").prop("disabled", false);
     $("#bomb-btn").addClass("active");
-    $("#bomb-btn span").text(bombsAvailable);
+    $("#bomb-btn span").text(GameState.bombsAvailable);
 
     $("#time-btn").prop("disabled", false);
     $("#time-btn").addClass("active");
-    $("#time-btn span").text(timeBonusesAvailable);
+    $("#time-btn span").text(GameState.timeBonusesAvailable);
   }
 
-  lineInterval = setInterval(() => {
-    if (lines > 0) {
+  GameState.lineInterval = setInterval(() => {
+    if (GameState.lines > 0) {
       addNewLine();
       reorderBlocks();
     }
-  }, levels[currentLevel - 1].lineInterval);
+  }, GameConfig.levels[currentLevel - 1].lineInterval);
 }
 
 // GAME LOGIC
 function newBoard() {
   const grid = $("#game-grid");
-  grid.empty();
-  const colorsNumber = levels[level - 1].colors;
-  const colorsToUse = colors.slice(0, colorsNumber);
+  const colorsNumber = GameConfig.levels[GameState.level - 1].colors;
+  const colorsToUse = GameConfig.colors.slice(0, colorsNumber);
 
-  for (let row = 0; row < initialFilledRows; row++) {
-    for (let col = 0; col < cols; col++) {
+  grid.empty();
+
+  for (let row = 0; row < GameConfig.initialFilledRows; row++) {
+    for (let col = 0; col < GameConfig.cols; col++) {
       const colorObj =
         colorsToUse[Math.floor(Math.random() * colorsToUse.length)];
       const block = $("<div></div>")
@@ -215,8 +293,8 @@ function newBoard() {
         .attr("data-color", colorObj.color)
         .attr("data-row", row)
         .attr("data-col", col)
-        .css("grid-row", rows - row) // a legalsó data-row = 0 → grid-row: 23
-        .css("grid-column", col + 1); // grid oszlop 1-alapú
+        .css("grid-row", GameConfig.rows - row)
+        .css("grid-column", col + 1);
       grid.append(block);
     }
   }
@@ -226,34 +304,34 @@ function newBoard() {
 function decreaseLines() {
   const linesElement = $("#lines-counter");
   let currentLines = parseInt(linesElement.text());
+
   currentLines--;
   linesElement.text(currentLines);
-
-  lines = currentLines;
+  GameState.lines = currentLines;
 }
 
 function addNewLine() {
-  const colorsNumber = levels[level - 1].colors;
-  const colorsToUse = colors.slice(0, colorsNumber);
+  const colorsNumber = GameConfig.levels[GameState.level - 1].colors;
+  const colorsToUse = GameConfig.colors.slice(0, colorsNumber);
 
-  if (lines > 0) {
+  if (GameState.lines > 0) {
     $(".block").each(function () {
       const block = $(this);
       const currentRow = parseInt(block.attr("data-row"));
       const newRow = currentRow + 1;
 
-      if (newRow < rows) {
+      if (newRow < GameConfig.rows) {
         block.attr("data-row", newRow);
-        block.css("grid-row", rows - newRow);
+        block.css("grid-row", GameConfig.rows - newRow);
       } else {
         block.remove();
       }
     });
     decreaseLines();
-    linesTillCrash++;
+    GameState.linesTillCrash++;
   }
 
-  for (let col = 0; col < cols; col++) {
+  for (let col = 0; col < GameConfig.cols; col++) {
     const colorObj =
       colorsToUse[Math.floor(Math.random() * colorsToUse.length)];
     const block = $("<div></div>")
@@ -262,7 +340,7 @@ function addNewLine() {
       .attr("data-color", colorObj.color)
       .attr("data-row", 0)
       .attr("data-col", col)
-      .css("grid-row", rows - 0)
+      .css("grid-row", GameConfig.rows - 0)
       .css("grid-column", col + 1)
       .css("opacity", 0);
 
@@ -336,7 +414,7 @@ function removeConnectedBlocks(clickedBlock) {
 }
 
 function reorderBlocks() {
-  for (let col = 0; col < cols; col++) {
+  for (let col = 0; col < GameConfig.cols; col++) {
     const columnBlocks = [];
 
     $(".block").each(function () {
@@ -353,7 +431,7 @@ function reorderBlocks() {
     let targetRow = 0;
     for (const block of columnBlocks) {
       block.attr("data-row", targetRow);
-      block.css("grid-row", rows - targetRow);
+      block.css("grid-row", GameConfig.rows - targetRow);
       targetRow++;
     }
   }
@@ -365,8 +443,8 @@ function dropBlocks() {
   while (hasMoved) {
     hasMoved = false;
 
-    for (let row = 1; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
+    for (let row = 1; row < GameConfig.rows; row++) {
+      for (let col = 0; col < GameConfig.cols; col++) {
         const block = $(`.block[data-row=${row}][data-col=${col}]`);
         if (!block.length) continue;
 
@@ -374,7 +452,7 @@ function dropBlocks() {
 
         if (below.length === 0) {
           block.attr("data-row", row - 1);
-          block.css("grid-row", rows - (row - 1));
+          block.css("grid-row", GameConfig.rows - (row - 1));
           hasMoved = true;
           continue;
         }
@@ -388,13 +466,13 @@ function dropBlocks() {
             block.attr("data-col", col - 1);
             block.attr("data-row", row - 1);
             block.css("grid-column", col);
-            block.css("grid-row", rows - (row - 1));
+            block.css("grid-row", GameConfig.rows - (row - 1));
             hasMoved = true;
             continue;
           }
         }
 
-        if (col < cols - 1) {
+        if (col < GameConfig.cols - 1) {
           const right = $(`.block[data-row=${row}][data-col=${col + 1}]`);
           const belowRight = $(
             `.block[data-row=${row - 1}][data-col=${col + 1}]`
@@ -403,7 +481,7 @@ function dropBlocks() {
             block.attr("data-col", col + 1);
             block.attr("data-row", row - 1);
             block.css("grid-column", col + 2);
-            block.css("grid-row", rows - (row - 1));
+            block.css("grid-row", GameConfig.rows - (row - 1));
             hasMoved = true;
             continue;
           }
@@ -418,28 +496,30 @@ function dropBlocks() {
 function showLevelUpModal() {
   const modal = $("#level-up-modal");
   const music = $("#level-up-music");
+
   music[0].load();
   music[0].play();
+
   modal.show();
   modal.css("display", "flex");
-  hideLevelInterval = setInterval(() => {
+
+  GameState.hideLevelInterval = setInterval(() => {
     modal.hide();
   }, 2000);
 }
 
 function showGameOverModal() {
   const modal = $("#game-over-modal");
+
   modal.show();
   modal.css("display", "flex");
-  console.log("Game Over Modal");
 }
 
 // BONUS FUNCTIONS
 
 function showFloatingScore(row, col, score) {
   const blockSize = 22;
-
-  const top = (rows - row - 3) * blockSize;
+  const top = (GameConfig.rows - row - 3) * blockSize;
   const left = (col + 2) * blockSize;
 
   if (score >= 80) {
@@ -468,17 +548,18 @@ function showFloatingScore(row, col, score) {
 }
 
 function useBomb() {
-  if (bombsAvailable <= 0) return;
+  if (GameState.bombsAvailable <= 0) return;
+
   const notification = $("#bomb-notification");
-  bombMode = true;
-  bombsAvailable--;
+  GameState.bombMode = true;
+  GameState.bombsAvailable--;
   notification.css("display", "flex");
 
-  if (bombsAvailable === 0) {
+  if (GameState.bombsAvailable === 0) {
     $("#bomb-btn").prop("disabled", true);
     $("#bomb-btn").removeClass("active");
   }
-  $("#bomb-btn span").text(bombsAvailable);
+  $("#bomb-btn span").text(GameState.bombsAvailable);
 }
 
 function explode(centerBlock) {
@@ -511,17 +592,17 @@ function explode(centerBlock) {
 }
 
 function useTimeBonus() {
-  if (timeBonusesAvailable <= 0) return;
-  clearInterval(hideNotificationInterval);
+  if (GameState.timeBonusesAvailable <= 0) return;
+  clearInterval(GameState.hideNotificationInterval);
   const notification = $("#time-notification");
   notification.css("display", "flex");
-  timeBonusesAvailable--;
+  GameState.timeBonusesAvailable--;
 
-  if (timeBonusesAvailable === 0) {
+  if (GameState.timeBonusesAvailable === 0) {
     $("#time-btn").prop("disabled", true);
     $("#time-btn").removeClass("active");
   }
-  $("#time-btn span").text(timeBonusesAvailable);
+  $("#time-btn span").text(GameState.timeBonusesAvailable);
   addTimeBonus(10);
 }
 
@@ -532,50 +613,87 @@ function addTimeBonus(seconds) {
 
   let total = parseInt(parts[0]) * 60 + parseInt(parts[1]);
   total += seconds;
-  clearInterval(timerInterval);
+  clearInterval(GameState.timerInterval);
   startTimer(total);
-  hideNotificationInterval = setInterval(() => {
+  GameState.hideNotificationInterval = setInterval(() => {
     notification.hide();
   }, 2000);
 }
 
 // WINNING, ENDING, GAME OVER, START
 
-function winningTheGame() {}
+function winningTheGame() {
+  const modal = $("#win-modal");
+  const music = $("#win-music");
+
+  GameState.winning = true;
+  modal.show();
+  modal.css("display", "flex");
+  music[0].play();
+  GameState.hideGameOverInterval = setInterval(() => {
+    showUsernameModal();
+    modal.hide();
+  }, 3000);
+}
 
 function gameOver() {
-  console.log("Game Over");
+  const modal = $("#game-over-modal");
+  const music = $("#game-over-music");
+
+  music[0].play();
+  modal.show();
+  modal.css("display", "flex");
+  GameState.hideGameOverInterval = setInterval(() => {
+    showUsernameModal();
+    modal.hide();
+  }, 3000);
 }
 
 function endGame() {
-  clearInterval(lineInterval);
-  clearInterval(timerInterval);
-  level = 1;
-  lines = 6;
-  highscore = 0;
-  bombsAvailable = 0;
-  timeBonusesAvailable = 0;
-  scoreToLevelUp = levels[level - 1].score;
-
+  const score = parseInt($("#high-score").text());
+  const music = $("#end-music");
   const levelElement = $("#level");
-  levelElement.text(level);
   const linesElement = $("#lines-counter");
-  linesElement.text(lines);
   const scoreElement = $("#high-score");
-  scoreElement.text(highscore);
-  scoreToLevelUp = levels[level - 1].score;
+
+  if (GameState.userName) {
+    saveHighscore(GameState.userName, score);
+  }
+
+  loadHighscoreList();
+  clearInterval(GameState.lineInterval);
+  clearInterval(GameState.timerInterval);
+
+  GameState.winning = false;
+
+  if (!GameState.winning) {
+    music[0].load();
+    music[0].play();
+  }
+  GameState.level = 1;
+  GameState.lines = 6;
+  GameState.highscore = 0;
+  GameState.bombsAvailable = 0;
+  GameState.timeBonusesAvailable = 0;
+
+  levelElement.text(GameState.level);
+  linesElement.text(GameState.lines);
+  scoreElement.text(GameState.highscore);
+  GameState.scoreToLevelUp = GameConfig.levels[GameState.level - 1].score;
+
   $("#bomb-btn").prop("disabled", true);
   $("#bomb-btn").removeClass("active");
-  $("#bomb-btn span").text(bombsAvailable);
+  $("#bomb-btn span").text(GameState.bombsAvailable);
 
   $("#time-btn").prop("disabled", true);
   $("#time-btn").removeClass("active");
-  $("#time-btn span").text(timeBonusesAvailable);
+  $("#time-btn span").text(GameState.timeBonusesAvailable);
   startButtonVisibility(true);
 }
 
 function startGame() {
   startButtonVisibility(false);
+  loadHighscoreList();
   showGameWindow();
   startTimer();
   newBoard();
@@ -584,26 +702,27 @@ function startGame() {
 // -----------------------
 $(document).ready(function () {
   startButtonVisibility(true);
-  if (lines === 0) {
-    gameOver();
-  }
 });
 
 $(document).on("click", "#start-btn", function () {
-  lineInterval = setInterval(() => {
-    if (lines > 0) {
+  GameState.lineInterval = setInterval(() => {
+    if (GameState.lines > 0) {
       addNewLine();
     }
     reorderBlocks();
-  }, levels[level - 1].lineInterval);
+  }, GameConfig.levels[GameState.level - 1].lineInterval);
 });
 
 $(document).on("click", ".block", function () {
   const block = $(this);
 
-  if (bombMode) {
-    bombMode = false;
+  if (GameState.bombMode) {
+    GameState.bombMode = false;
     explode(block);
+    return;
+  }
+
+  if (GameState.userNameModal) {
     return;
   }
 
